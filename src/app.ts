@@ -1,6 +1,6 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import routes from './routes';
+import routes from './routes/routes';
 import { notFoundHandler, globalErrorHandler } from './middlewares/error.middleware';
 
 const app: Application = express();

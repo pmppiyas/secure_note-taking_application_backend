@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import User from './user.model';
+import Note from '../note/note.model';
 import { IUser } from './user.interface';
 import AppError from '../../utils/AppError';
 import { getPagination, formatPaginationMeta } from '../../utils/pagination';
@@ -118,6 +119,10 @@ const deleteUser = async (id: string) => {
   if (!deletedUser) {
     throw new AppError('User not found', 404);
   }
+
+  // Cascade delete all notes owned by the deleted user
+  await Note.deleteMany({ userId: id });
+
   return deletedUser;
 };
 

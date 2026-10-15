@@ -16,7 +16,8 @@ export const getPagination = (query: any): PaginationOptions => {
   const parsedLimit = parseInt(query?.limit as string, 10);
 
   const page = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
-  const rawLimit = Number.isInteger(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10;
+  const rawLimit =
+    Number.isInteger(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10;
   const limit = Math.min(Math.max(rawLimit, 1), 100);
 
   const skip = (page - 1) * limit;

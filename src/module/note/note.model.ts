@@ -23,7 +23,6 @@ const noteSchema = new Schema<INote>(
   }
 );
 
-// Explicit compound and single indexes
 noteSchema.index({ userId: 1, createdAt: -1 });
 noteSchema.index({ createdAt: -1 });
 

@@ -34,7 +34,6 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-// Explicit compound/single indexes
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ createdAt: -1 });
 userSchema.index({ interests: 1 });

@@ -1,7 +1,11 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import routes from './routes/routes';
-import { notFoundHandler, globalErrorHandler } from './middlewares/error.middleware';
+import connectDB from './config/db';
+import {
+  notFoundHandler,
+  globalErrorHandler,
+} from './middlewares/error.middleware';
 
 const app: Application = express();
 
@@ -9,6 +13,16 @@ const app: Application = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Ensure DB connection for serverless and persistent invocations
+app.use(async (_req: Request, _res: Response, next: NextFunction) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Root health-check route
 app.get('/', (_req: Request, res: Response) => {

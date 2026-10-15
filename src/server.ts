@@ -25,7 +25,10 @@ async function bootstrap(): Promise<void> {
   }
 }
 
-bootstrap();
+// In local/persistent environments (Render), start HTTP server
+if (!process.env.VERCEL) {
+  bootstrap();
+}
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason: unknown) => {
@@ -48,3 +51,5 @@ process.on('SIGTERM', () => {
     });
   }
 });
+
+export default app;

@@ -4,6 +4,7 @@ import Note from '../note/note.model';
 import Post from '../post/post.model';
 import { IUser } from './user.interface';
 import AppError from '../../utils/AppError';
+import config from '../../config';
 import { getPagination, formatPaginationMeta } from '../../utils/pagination';
 
 const groupUsersByInterests = async () => {
@@ -80,7 +81,10 @@ const createUser = async (payload: Partial<IUser>) => {
   }
 
   if (payload.password) {
-    payload.password = await bcrypt.hash(payload.password, 10);
+    payload.password = await bcrypt.hash(
+      payload.password,
+      config.bcryptSaltRounds
+    );
   }
 
   const user = await User.create(payload);
@@ -100,7 +104,10 @@ const updateUser = async (id: string, payload: Partial<IUser>) => {
   }
 
   if (payload.password) {
-    payload.password = await bcrypt.hash(payload.password, 10);
+    payload.password = await bcrypt.hash(
+      payload.password,
+      config.bcryptSaltRounds
+    );
   }
 
   const updatedUser = await User.findByIdAndUpdate(id, payload, {

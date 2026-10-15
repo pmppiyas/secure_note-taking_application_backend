@@ -19,7 +19,10 @@ const register = async (payload: IRegisterPayload): Promise<IAuthResponse> => {
     throw new AppError('Email is already registered', 409);
   }
 
-  const hashedPassword = await bcrypt.hash(payload.password, 10);
+  const hashedPassword = await bcrypt.hash(
+    payload.password,
+    config.bcryptSaltRounds
+  );
 
   const newUser = await User.create({
     ...payload,

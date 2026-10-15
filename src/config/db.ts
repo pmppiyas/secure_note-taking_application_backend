@@ -4,7 +4,9 @@ import config from './index';
 export const connectDB = async (): Promise<void> => {
   try {
     const conn = await mongoose.connect(config.mongoUri);
-    console.log(`MongoDB Connected successfully: ${conn.connection.host}`);
+    console.log(
+      `MongoDB Connected successfully: ${conn.connection.host} (DB: ${conn.connection.name})`
+    );
   } catch (error) {
     console.error('Failed to connect to MongoDB:', error);
     process.exit(1);

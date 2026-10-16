@@ -10,6 +10,7 @@ const envSchema = z.object({
     .default('development'),
   PORT: z.coerce.number().default(5000),
   MONGO_URI: z.string().default('mongodb://127.0.0.1:27017/secure-notes'),
+  FRONTEND_URL: z.string().optional().default(''),
   JWT_SECRET: z.string().default('default_jwt_secret_key_change_in_production'),
   JWT_EXPIRES_IN: z.string().default('7d'),
   BCRYPT_SALT_ROUNDS: z.coerce.number().default(10),
@@ -32,6 +33,12 @@ export const config = {
   nodeEnv: env.NODE_ENV,
   port: env.PORT,
   mongoUri: env.MONGO_URI,
+  frontendUrl: env.FRONTEND_URL,
+  allowedOrigins: env.FRONTEND_URL
+    ? env.FRONTEND_URL.split(',')
+        .map((origin) => origin.trim().replace(/\/+$/, ''))
+        .filter(Boolean)
+    : [],
   jwtSecret: env.JWT_SECRET,
   jwtExpiresIn: env.JWT_EXPIRES_IN,
   bcryptSaltRounds: env.BCRYPT_SALT_ROUNDS,

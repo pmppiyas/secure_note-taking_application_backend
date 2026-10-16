@@ -1,7 +1,9 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import routes from './routes/routes';
 import connectDB from './config/db';
+import config from './config';
+import AppError from './utils/AppError';
 import {
   notFoundHandler,
   globalErrorHandler,
@@ -9,8 +11,44 @@ import {
 
 const app: Application = express();
 
+const allowedOrigins = config.allowedOrigins;
+
+const corsOptions: CorsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    const isAllowed =
+      allowedOrigins.includes('*') ||
+      allowedOrigins.some(
+        (allowed) => allowed.toLowerCase() === origin.toLowerCase()
+      );
+
+    if (isAllowed) {
+      return callback(null, true);
+    }
+
+    return callback(
+      new AppError(
+        `Blocked by CORS: Origin ${origin} is not allowed by FRONTEND_URL env`,
+        403
+      )
+    );
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+  ],
+  optionsSuccessStatus: 204,
+};
+
 // Global Middlewares
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

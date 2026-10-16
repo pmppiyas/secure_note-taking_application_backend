@@ -24,9 +24,7 @@ const corsOptions: CorsOptions = {
       allowedOrigins.includes('*') ||
       allowedOrigins.some(
         (allowed) => allowed.toLowerCase() === origin.toLowerCase()
-      ) ||
-      origin.toLowerCase().includes('notetracker.vercel.app') ||
-      origin.toLowerCase().includes('localhost');
+      );
 
     if (isAllowed) {
       return callback(null, true);

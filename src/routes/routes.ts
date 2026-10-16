@@ -3,6 +3,7 @@ import { authRoutes } from '../module/auth/auth.routes';
 import { userRoutes } from '../module/user/user.routes';
 import { noteRoutes } from '../module/note/note.routes';
 import { postRoutes } from '../module/post/post.routes';
+import { metadataRoutes } from '../module/metadata/metadata.routes';
 
 const router = Router();
 
@@ -22,6 +23,10 @@ const moduleRoutes = [
   {
     path: '/posts',
     route: postRoutes,
+  },
+  {
+    path: '/metadata',
+    route: metadataRoutes,
   },
 ];
 

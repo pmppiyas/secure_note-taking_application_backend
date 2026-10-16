@@ -5,7 +5,12 @@ import PostController from '../post/post.controller';
 import validateRequest from '../../middlewares/validate.middleware';
 import { authenticate, authorize } from '../../middlewares/auth.middleware';
 
+import MetadataController from '../metadata/metadata.controller';
+
 const router = Router();
+
+// Dashboard Metadata
+router.get('/metadata', authenticate, MetadataController.getMetadata);
 
 // Scenario 1 Aggregation: Group users by interests (Authenticated)
 router.get(

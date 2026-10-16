@@ -12,3 +12,8 @@ export interface ICreatePostPayload {
   title: string;
   body: string;
 }
+
+export interface IUpdatePostPayload {
+  title?: string;
+  body?: string;
+}

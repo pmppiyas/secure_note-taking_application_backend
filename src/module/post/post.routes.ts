@@ -18,5 +18,16 @@ router.post(
   PostController.createPost
 );
 
+router.get('/:id', PostController.getPostById);
+
+router.patch(
+  '/:id',
+  authenticate,
+  validateRequest(PostValidation.updatePostSchema),
+  PostController.updatePost
+);
+
+router.delete('/:id', authenticate, PostController.deletePost);
+
 export const postRoutes = router;
 export default router;

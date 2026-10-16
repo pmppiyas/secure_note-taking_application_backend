@@ -1,7 +1,7 @@
 import mongoose, { Types } from 'mongoose';
 import Post from './post.model';
 import User from '../user/user.model';
-import { ICreatePostPayload } from './post.interface';
+import { ICreatePostPayload, IUpdatePostPayload } from './post.interface';
 import AppError from '../../utils/AppError';
 import { getPagination, formatPaginationMeta } from '../../utils/pagination';
 
@@ -66,10 +66,81 @@ const getUserPostsWithLookup = async (userId: string) => {
   return result[0];
 };
 
+const getPostById = async (postId: string) => {
+  if (!mongoose.Types.ObjectId.isValid(postId)) {
+    throw new AppError('Invalid post ID', 400);
+  }
+
+  const post = await Post.findById(postId).populate('userId', 'name email role');
+  if (!post) {
+    throw new AppError('Post not found', 404);
+  }
+
+  return post;
+};
+
+const updatePost = async (
+  postId: string,
+  userId: string,
+  requesterRole: string,
+  payload: IUpdatePostPayload
+) => {
+  if (!mongoose.Types.ObjectId.isValid(postId)) {
+    throw new AppError('Invalid post ID', 400);
+  }
+
+  const post = await Post.findById(postId);
+  if (!post) {
+    throw new AppError('Post not found', 404);
+  }
+
+  const isOwner = post.userId.toString() === userId;
+  const isAdmin = requesterRole === 'ADMIN' || requesterRole === 'admin';
+
+  if (!isOwner && !isAdmin) {
+    throw new AppError('Forbidden: You can only update your own posts', 403);
+  }
+
+  const updatedPost = await Post.findByIdAndUpdate(postId, payload, {
+    new: true,
+    runValidators: true,
+  }).populate('userId', 'name email role');
+
+  return updatedPost;
+};
+
+const deletePost = async (
+  postId: string,
+  userId: string,
+  requesterRole: string
+) => {
+  if (!mongoose.Types.ObjectId.isValid(postId)) {
+    throw new AppError('Invalid post ID', 400);
+  }
+
+  const post = await Post.findById(postId);
+  if (!post) {
+    throw new AppError('Post not found', 404);
+  }
+
+  const isOwner = post.userId.toString() === userId;
+  const isAdmin = requesterRole === 'ADMIN' || requesterRole === 'admin';
+
+  if (!isOwner && !isAdmin) {
+    throw new AppError('Forbidden: You can only delete your own posts', 403);
+  }
+
+  await Post.findByIdAndDelete(postId);
+  return post;
+};
+
 export const PostServices = {
   createPost,
   getAllPosts,
   getUserPostsWithLookup,
+  getPostById,
+  updatePost,
+  deletePost,
 };
 
 export default PostServices;

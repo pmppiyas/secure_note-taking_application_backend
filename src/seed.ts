@@ -128,8 +128,42 @@ const seedDatabase = async (): Promise<void> => {
             body: 'Proper indexing speeds up queries and enables efficient multikey aggregation.',
             userId: bob._id,
           },
+          {
+            title: 'MongoDB Indexing Mastery: Enforcing the ESR Rule for Compound Indexes',
+            body: 'Compound indexing in MongoDB requires strict adherence to the ESR (Equality, Sort, Range) rule. Always position exact equality filter fields (such as userId) first, sort fields (such as createdAt: -1) second, and range filters last. This design ensures MongoDB executes pure index scans with zero in-memory sort overhead, eliminating DISK_USE spills on high-volume collections.',
+            userId: bob._id,
+          },
         ]);
         console.log(`Created sample posts for ${bob.email}`);
+      }
+    }
+
+    // Seed tech posts for other users if needed
+    const techPosts = [
+      {
+        title: 'Deep Dive into Node.js Event Loop & Non-Blocking Asynchronous I/O',
+        body: 'Node.js achieves exceptional throughput through its single-threaded event loop powered by libuv. Grasping the priority between the microtask queue (process.nextTick, Promise callbacks) and macrotask phases (Timers, I/O, Poll, Check) is vital. Delegating CPU-intensive operations such as bcrypt password hashing to libuv background worker threads keeps latency low and throughput high.',
+        userId: alice?._id,
+      },
+      {
+        title: 'Architecting Resilient Express.js Middleware & Centralized Error Handlers',
+        body: 'Production-ready Express.js architectures demand modular router separation and an unbreachable error-handling pipeline. By wrapping asynchronous controllers in a higher-order catchAsync utility and deploying a 4-parameter global error middleware (err, req, res, next), unhandled promise rejections are eliminated while returning type-safe, predictable JSON responses.',
+        userId: users[2]?._id || alice?._id,
+      },
+      {
+        title: 'Relational Joins in MongoDB: Leveraging $lookup Aggregations in Express APIs',
+        body: 'Although MongoDB is document-based, real-world systems regularly model 1-to-many relationships across collections. Using the $lookup aggregation stage in Express endpoints allows developers to perform foreign key joins (userId -> _id) in a single database roundtrip, complemented by $unwind and $project stages to shape concise, production-grade API payloads.',
+        userId: admin?._id,
+      },
+    ];
+
+    for (const tp of techPosts) {
+      if (tp.userId) {
+        const exists = await Post.findOne({ title: tp.title });
+        if (!exists) {
+          await Post.create(tp);
+          console.log(`Created tech post: "${tp.title}"`);
+        }
       }
     }
 

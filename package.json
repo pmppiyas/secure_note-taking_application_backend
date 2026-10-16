@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "seed": "ts-node-dev --transpile-only src/seed.ts",
+    "seed:notes": "ts-node-dev --transpile-only src/scripts/seedAliceNotes.ts",
+    "seed:posts": "ts-node-dev --transpile-only src/scripts/seedTechPosts.ts",
+    "seed:all": "ts-node-dev --transpile-only src/scripts/seedAllPosts.ts",
     "build": "tsc",
     "start": "node dist/server.js"
   },

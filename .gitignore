@@ -3,3 +3,6 @@ dist
 .env
 powershell.cmd
 powershell.exe
+
+.vercel
+.env*.local

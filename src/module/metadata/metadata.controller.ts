@@ -15,8 +15,21 @@ const getMetadata = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAdminMetadata = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user!.userId;
+
+  const result = await MetadataServices.getAdminMetadata(userId);
+
+  res.status(200).json({
+    success: true,
+    message: 'Admin dashboard metadata retrieved successfully',
+    data: result,
+  });
+});
+
 export const MetadataController = {
   getMetadata,
+  getAdminMetadata,
 };
 
 export default MetadataController;

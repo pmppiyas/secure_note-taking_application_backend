@@ -12,20 +12,29 @@ export interface IDashboardMetadata {
   interests: string[];
   totalNotesCount?: number;
   totalUsersCount?: number;
+  totalCategoriesCount?: number;
 }
 
 const getDashboardMetadata = async (
   userId: string,
   role: string
 ): Promise<IDashboardMetadata> => {
-  const userObjectId = new Types.ObjectId(userId);
+  const userObjId = Types.ObjectId.isValid(userId)
+    ? new Types.ObjectId(userId)
+    : null;
+
+  const userFilter = userObjId
+    ? { $or: [{ userId: userObjId }, { userId: userId.toString() }] }
+    : { userId: userId.toString() };
 
   const [myNotesCount, myPostsCount, totalPostsCount, userDoc] =
     await Promise.all([
-      Note.countDocuments({ userId: userObjectId }),
-      Post.countDocuments({ userId: userObjectId }),
+      Note.countDocuments(userFilter),
+      Post.countDocuments(userFilter),
       Post.countDocuments({}),
-      User.findById(userObjectId).select('interests name email role'),
+      userObjId
+        ? User.findById(userObjId).select('interests name email role')
+        : User.findOne({ _id: userId }).select('interests name email role'),
     ]);
 
   if (!userDoc) {
@@ -36,12 +45,23 @@ const getDashboardMetadata = async (
 
   let totalNotesCount: number | undefined;
   let totalUsersCount: number | undefined;
+  let totalCategoriesCount: number | undefined;
 
   if (isAdmin) {
-    [totalNotesCount, totalUsersCount] = await Promise.all([
+    const [allNotes, allUsers, categoriesAggregation] = await Promise.all([
       Note.countDocuments({}),
       User.countDocuments({}),
+      User.aggregate([
+        { $match: { 'interests.0': { $exists: true } } },
+        { $unwind: '$interests' },
+        { $group: { _id: '$interests' } },
+        { $count: 'total' },
+      ]),
     ]);
+
+    totalNotesCount = allNotes;
+    totalUsersCount = allUsers;
+    totalCategoriesCount = categoriesAggregation[0]?.total || 0;
   }
 
   return {
@@ -50,12 +70,25 @@ const getDashboardMetadata = async (
     totalPostsCount,
     interestsCount: userDoc.interests?.length || 0,
     interests: userDoc.interests || [],
-    ...(isAdmin ? { totalNotesCount, totalUsersCount } : {}),
+    ...(isAdmin
+      ? {
+          totalNotesCount,
+          totalUsersCount,
+          totalCategoriesCount,
+        }
+      : {}),
   };
+};
+
+const getAdminMetadata = async (
+  adminId: string
+): Promise<IDashboardMetadata> => {
+  return getDashboardMetadata(adminId, 'ADMIN');
 };
 
 export const MetadataServices = {
   getDashboardMetadata,
+  getAdminMetadata,
 };
 
 export default MetadataServices;
